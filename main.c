@@ -1,44 +1,45 @@
 #include "monty.h"
-#define AGSIZE 10
+bus_t bus = {NULL, NULL, NULL, 0};
 /**
- *main - main
- *@argc:argst
- *@argv:args
- *Return:0
- */
+* main – the monty
+* @argc: the number
+* @argv: the monty file
+* Return: 0 on success
+*/
 int main(int argc, char *argv[])
 {
-	/*initialization */
-	mon.line_number = 1;
-	mon.stack_queue = 1;
-	mon.file = NULL;
-	mon.args = malloc(sizeof(char *) * AGSIZE);
-	if (!mon.args)
-	{
-		dprintf(STDERR_FILNO, "USAGE: monty file\n");
-		free();
-		exit(EXIT_FAILURE);
-	}
+	char *content;
+	FILE *file;
+	size_t size = 0;
+	ssize_t read_line = 1;
+	stack_t *stack = NULL;
+	unsigned int counter = 0;
+
 	if (argc != 2)
 	{
-		dprintf(STDERR_FILENO, "USAGE: monty file\n");
-		freer();
+		fprintf(stderr, "USAGE: monty file\n");
 		exit(EXIT_FAILURE);
 	}
-	if (access(argv[1], R_OK) == -1)
+	file = fopen(argv[1], "r");
+	bus.file = file;
+	if (!file)
 	{
-		dprintf(STDERR_FILENO, "Error: Can't open file %s\n", argv[1]);
-		freer();
+		fprintf(stderr, "Error: Can't open file %s\n", argv[1]);
 		exit(EXIT_FAILURE);
 	}
-	mon.file = fopen(argv[1], "r");
-	if (!mon.file)
+	while (read_line > 0)
 	{
-		dprintf(STDERR_FILENO, "Error: malloc failed\n");
-		freer();
-		exit(EXIT_FAILURE);
+		content = NULL;
+		read_line = getline(&content, &size, file);
+		bus.content = content;
+		counter++;
+		if (read_line > 0)
+		{
+			execute(content, &stack, counter, file);
+		}
+		free(content);
 	}
-	parse();
-	freer();
-	return (EXIT_SUCCESS);
+	free_stack(stack);
+	fclose(file);
+return (0);
 }
